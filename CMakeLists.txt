@@ -22,7 +22,7 @@ if(APPLE AND NOT XCODE)
 	set(CMAKE_CXX_FLAGS "-ObjC++")
 endif()
 
-if(MSVC AND (MSVC_VERSION GREATER_EQUAL 1914))
+if(MSVC AND(MSVC_VERSION GREATER_EQUAL 1914))
 	add_compile_options("/Zc:__cplusplus")
 endif()
 
@@ -83,11 +83,13 @@ if(NOT BX_DIR)
 elseif(NOT IS_ABSOLUTE "${BX_DIR}")
 	get_filename_component(BX_DIR "${BX_DIR}" REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
+
 if(NOT BIMG_DIR)
 	set(BIMG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bimg" CACHE STRING "Location of bimg.")
 elseif(NOT IS_ABSOLUTE "${BIMG_DIR}")
 	get_filename_component(BIMG_DIR "${BIMG_DIR}" REALPATH BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 endif()
+
 if(NOT BGFX_DIR)
 	set(BGFX_DIR "${CMAKE_CURRENT_SOURCE_DIR}/bgfx" CACHE STRING "Location of bgfx.")
 elseif(NOT IS_ABSOLUTE "${BGFX_DIR}")
@@ -100,6 +102,7 @@ file(TO_CMAKE_PATH "${BGFX_DIR}" BGFX_DIR)
 
 # sets project version from api ver / git rev
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/version.cmake)
+
 if(BGFX_BUILD_TOOLS AND BGFX_CUSTOM_TARGETS)
 	add_custom_target(tools)
 	set_target_properties(tools PROPERTIES FOLDER "bgfx/tools")
@@ -109,9 +112,9 @@ if(BGFX_INSTALL)
 	include(GNUInstallDirs)
 
 	# Layout. This works for all platforms:
-	#   * <prefix>/lib*/cmake/<PROJECT-NAME>
-	#   * <prefix>/lib*/
-	#   * <prefix>/include/
+	# * <prefix>/lib*/cmake/<PROJECT-NAME>
+	# * <prefix>/lib*/
+	# * <prefix>/include/
 	set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 	set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
@@ -126,26 +129,36 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bimg)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bgfx)
 
+# ----------------------------------------
+include(cmake/bgfx/app.cmake)
+
+add_bgfx_app("02-metaballs")
+add_bgfx_app("03-raymarch")
+add_bgfx_app("04-mesh")
+add_bgfx_app("05-instancing")
+
+# ----------------------------------------
 if(BGFX_INSTALL)
 	# Include module with fuction 'write_basic_package_version_file'
 	include(CMakePackageConfigHelpers)
 
 	# Configure '<PROJECT-NAME>ConfigVersion.cmake'
 	# Use:
-	#   * PROJECT_VERSION
+	# * PROJECT_VERSION
 	if(${CMAKE_VERSION} VERSION_LESS "3.11.0")
 		set(BGFX_COMPATIBILITY SameMajorVersion)
 	else()
 		set(BGFX_COMPATIBILITY SameMinorVersion)
 	endif()
+
 	write_basic_package_version_file("${version_config}" VERSION ${PROJECT_VERSION} COMPATIBILITY ${BGFX_COMPATIBILITY})
 
 	# Configure '<PROJECT-NAME>Config.cmake'
 	# Use variables:
-	#   * TARGETS_EXPORT_NAME
-	#   * PROJECT_NAME
-	#   * BGFX_CMAKE_USER_SCRIPT_PRESENT
-	#   * BGFX_CMAKE_USER_SCRIPT_INSTALL_NAME
+	# * TARGETS_EXPORT_NAME
+	# * PROJECT_NAME
+	# * BGFX_CMAKE_USER_SCRIPT_PRESENT
+	# * BGFX_CMAKE_USER_SCRIPT_INSTALL_NAME
 	if(BGFX_CMAKE_USER_SCRIPT STREQUAL "")
 		set(BGFX_CMAKE_USER_SCRIPT_PRESENT OFF)
 		set(BGFX_CMAKE_USER_SCRIPT_INSTALL_NAME "NOT-USED")
@@ -153,6 +166,7 @@ if(BGFX_INSTALL)
 		set(BGFX_CMAKE_USER_SCRIPT_PRESENT ON)
 		get_filename_component(BGFX_CMAKE_USER_SCRIPT_INSTALL_NAME ${BGFX_CMAKE_USER_SCRIPT} NAME)
 	endif()
+
 	configure_package_config_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/cmake/Config.cmake.in" "${project_config}"
 		INSTALL_DESTINATION "${config_install_dir}"
@@ -164,14 +178,15 @@ if(BGFX_INSTALL)
 	if(BGFX_CMAKE_USER_SCRIPT)
 		install(FILES ${BGFX_CMAKE_USER_SCRIPT} DESTINATION "${config_install_dir}")
 	endif()
+
 	install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/cmake/bgfxToolUtils.cmake DESTINATION "${config_install_dir}")
 
 	# Config
-	#   * <prefix>/lib/cmake/bgfx/bgfxConfig.cmake
-	#   * <prefix>/lib/cmake/bgfx/bgfxConfigVersion.cmake
+	# * <prefix>/lib/cmake/bgfx/bgfxConfig.cmake
+	# * <prefix>/lib/cmake/bgfx/bgfxConfigVersion.cmake
 	install(FILES "${project_config}" "${version_config}" DESTINATION "${config_install_dir}")
 
 	# Config
-	#   * <prefix>/lib/cmake/bgfx/bgfxTargets.cmake
+	# * <prefix>/lib/cmake/bgfx/bgfxTargets.cmake
 	install(EXPORT "${TARGETS_EXPORT_NAME}" NAMESPACE "${namespace}" DESTINATION "${config_install_dir}")
 endif()
