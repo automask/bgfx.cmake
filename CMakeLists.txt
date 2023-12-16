@@ -129,15 +129,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bx)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bimg)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/cmake/bgfx)
 
-# ----------------------------------------
-include(cmake/bgfx/app.cmake)
-
-add_bgfx_app("02-metaballs")
-add_bgfx_app("03-raymarch")
-add_bgfx_app("04-mesh")
-add_bgfx_app("05-instancing")
-
-# ----------------------------------------
 if(BGFX_INSTALL)
 	# Include module with fuction 'write_basic_package_version_file'
 	include(CMakePackageConfigHelpers)
@@ -190,3 +181,6 @@ if(BGFX_INSTALL)
 	# * <prefix>/lib/cmake/bgfx/bgfxTargets.cmake
 	install(EXPORT "${TARGETS_EXPORT_NAME}" NAMESPACE "${namespace}" DESTINATION "${config_install_dir}")
 endif()
+
+# -----------------------------------------------------------------------------
+add_subdirectory(game)
